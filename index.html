@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6e8e5">
+  <title>Tạo link thiệp mời</title>
+  <style>
+    :root { color-scheme: light; --ink: #49383a; --muted: #8b7375; --rose: #a94d5d; --paper: #fffdfa; --line: #ead8d5; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at top, #fff8f5, transparent 58%), #f6e8e5; color: var(--ink); font: 16px/1.6 Georgia, "Times New Roman", serif; }
+    main { width: min(100%, 520px); padding: clamp(26px, 7vw, 48px); border: 1px solid #e8d4d1; outline: 1px solid #e8d4d1; outline-offset: 5px; background: var(--paper); box-shadow: 0 20px 60px #58363a1c; }
+    .eyebrow { margin: 0 0 10px; color: var(--rose); font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .2em; text-align: center; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(30px, 8vw, 42px); font-weight: 500; line-height: 1.15; text-align: center; }
+    .intro { margin: 14px 0 28px; color: var(--muted); text-align: center; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; }
+    input { width: 100%; min-height: 50px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); font: inherit; }
+    input:focus { outline: 2px solid #c77e88; outline-offset: 2px; }
+    .actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
+    button { min-height: 48px; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 7px; background: var(--ink); color: white; font: 15px Georgia, "Times New Roman", serif; cursor: pointer; }
+    button:hover { background: #63484c; }
+    button.secondary { background: var(--paper); color: var(--ink); }
+    button.secondary:hover { background: #fbf1ef; }
+    .result { margin-top: 22px; padding-top: 20px; border-top: 1px dashed var(--line); }
+    .result[hidden] { display: none; }
+    .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .result-label { margin: 0; color: var(--rose); font-size: 14px; }
+    .result-heading button { min-height: 38px; padding: 7px 12px; font-size: 13px; }
+    .link { min-height: 44px; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .status { min-height: 24px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+    @media (max-width: 420px) { .actions { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Wedding invitation · 25.10.2026</p>
+    <h1>Tạo link thiệp mời</h1>
+    <p class="intro">Nhập tên khách mời để tạo đường dẫn riêng. Link sẽ tự mở thiệp với lời gửi đúng tên.</p>
+    <form id="invite-form">
+      <label for="guest-name">Tên khách mời</label>
+      <input id="guest-name" name="name" placeholder="Ví dụ: Cô Hoa" maxlength="60" autocomplete="name" required>
+      <div class="actions">
+        <button type="submit">Tạo link thiệp</button>
+      </div>
+    </form>
+    <section class="result" id="result" aria-live="polite" hidden>
+      <div class="result-heading">
+        <p class="result-label">Link mời đã sẵn sàng</p>
+        <button class="secondary" id="copy-button" type="button" disabled hidden>Sao chép link</button>
+      </div>
+      <input class="link" id="invite-link" readonly aria-label="Link thiệp mời">
+    </section>
+    <p class="status" id="status" role="status"></p>
+  </main>
+  <script>
+    const invitationUrl = "https://thienhv-dev.github.io/levuquy-demo/";
+    const form = document.querySelector("#invite-form");
+    const nameInput = document.querySelector("#guest-name");
+    const result = document.querySelector("#result");
+    const linkInput = document.querySelector("#invite-link");
+    const copyButton = document.querySelector("#copy-button");
+    const status = document.querySelector("#status");
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = nameInput.value.trim();
+      if (!name) {
+        status.textContent = "Bạn nhập tên khách mời trước nhé.";
+        nameInput.focus();
+        return;
+      }
+      const url = new URL(invitationUrl);
+      url.searchParams.set("to", name);
+      linkInput.value = url.toString();
+      result.hidden = false;
+      copyButton.hidden = false;
+      copyButton.disabled = false;
+      status.textContent = "";
+    });
+
+    nameInput.addEventListener("input", () => {
+      status.textContent = "";
+    });
+
+    copyButton.addEventListener("click", async () => {
+      if (!linkInput.value) return;
+      try {
+        await navigator.clipboard.writeText(linkInput.value);
+        status.textContent = "Đã sao chép link vào bộ nhớ tạm.";
+      } catch {
+        linkInput.focus();
+        linkInput.select();
+        status.textContent = "Link đã được chọn. Nhấn giữ hoặc bấm Ctrl/Cmd+C để sao chép.";
+      }
+    });
+  </script>
+</body>
+</html>
