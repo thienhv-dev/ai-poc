@@ -69,9 +69,8 @@
         nameInput.focus();
         return;
       }
-      const url = new URL(invitationUrl);
-      url.searchParams.set("to", name);
-      linkInput.value = url.toString();
+      const url = `${invitationUrl}?to=${encodeURIComponent(name)}`;
+      linkInput.value = url;
       result.hidden = false;
       copyButton.hidden = false;
       copyButton.disabled = false;
