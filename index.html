@@ -69,10 +69,11 @@
         nameInput.focus();
         return;
       }
-      const base64Name = btoa(encodeURIComponent(name));
-      const url = new URL(invitationUrl);
-      url.searchParams.set("to", base64Name);
-      linkInput.value = url.toString();
+      // Mã hoá tên thành chuỗi chỉ gồm chữ, số, "-" và "_" (Base64 URL của UTF-8).
+      // Link không còn dấu tiếng Việt, dấu cách hay ký tự %, nên Messenger/Zalo không cắt mất phần tên.
+      const bytes = new TextEncoder().encode(name);
+      const token = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      linkInput.value = `${invitationUrl}?g=${token}`;
       result.hidden = false;
       copyButton.hidden = false;
       copyButton.disabled = false;
