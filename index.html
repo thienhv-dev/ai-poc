@@ -69,8 +69,10 @@
         nameInput.focus();
         return;
       }
-      const url = `${invitationUrl}?to=${encodeURIComponent(name)}`;
-      linkInput.value = url;
+      const base64Name = btoa(encodeURIComponent(name));
+      const url = new URL(invitationUrl);
+      url.searchParams.set("to", base64Name);
+      linkInput.value = url.toString();
       result.hidden = false;
       copyButton.hidden = false;
       copyButton.disabled = false;
